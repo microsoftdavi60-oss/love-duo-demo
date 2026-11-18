@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="robots" content="noindex,nofollow" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Demonstração de LOVE DUO: a primeira fase da aventura cooperativa para dois jogadores." />
+  <meta name="theme-color" content="#0d0820" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="icon" href="icon-192.png" sizes="192x192" type="image/png" />
+  <title>LOVE DUO — DEMO</title>
+  <link rel="stylesheet" href="style.css?v=a2851d15" />
+</head>
+<body class="demo-mode">
+  <main id="stage">
+
+    <canvas id="game" width="480" height="270" aria-label="Jogo LOVE DUO"></canvas>
+    <div id="vignette"></div>
+    <div id="flash"></div>
+
+    <!-- ===================== HUD ===================== -->
+    <section id="hud" class="hidden" aria-live="polite">
+      <div class="hud-bar">
+        <div class="badge badge-p1"><span class="heart-icon">♥</span> P1 <b id="p1-hearts">0</b></div>
+        <div class="badge badge-center">
+          <span class="heart-icon">♥</span>
+          <b id="heart-count">0</b><span class="slash">/</span><span id="heart-total">6</span>
+          <span class="hud-timer" id="hud-timer">00:00</span>
+        </div>
+        <div class="badge badge-p2"><b id="p2-hearts">0</b> P2 <span class="heart-icon">♥</span></div>
+        <div class="hud-tools">
+          <button class="icon-btn mute-btn" data-mute title="Ligar/desligar som" aria-label="Alternar som">♪</button>
+          <button class="icon-btn" id="hud-pause" title="Pausar (Esc)" aria-label="Pausar jogo">II</button>
+        </div>
+      </div>
+      <p id="phase-label">FASE 1 · FLORESTA ENCANTADA</p>
+      <p id="objective">Encontrem os corações espalhados pelo jardim.</p>
+      <p id="coop-hint" class="hidden"></p>
+    </section>
+
+    <!-- ===================== INÍCIO DE FASE ===================== -->
+    <div id="level-intro" class="level-intro hidden" aria-hidden="true">
+      <div class="level-intro-inner">
+        <p class="level-intro-kicker">FASE <span id="li-num">1</span></p>
+        <h2 id="li-name">FLORESTA ENCANTADA</h2>
+        <p id="li-sub">Onde todo amor começa.</p>
+      </div>
+    </div>
+
+    <!-- ===================== INTRO ===================== -->
+    <section id="intro" class="screen">
+      <div class="intro-sky">
+        <div id="intro-stars"></div>
+        <div id="intro-particles"></div>
+      </div>
+      <div class="intro-perspective">
+        <div class="intro-inner">
+          <p class="intro-dev">DEVELOPED BY</p>
+          <div class="king-wrap">
+            <h1 class="king">THE KING</h1>
+            <svg class="heart-ring" viewBox="0 0 320 210" aria-hidden="true">
+              <defs>
+                <linearGradient id="heartStroke" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#ffd3ec" />
+                  <stop offset="45%" stop-color="#ff8fc7" />
+                  <stop offset="100%" stop-color="#b78bff" />
+                </linearGradient>
+                <filter id="heartGlow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="4" result="blur" />
+                  <feMerge>
+                    <feMergeNode in="blur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
+              <path class="heart-path" filter="url(#heartGlow)"
+                d="M160 190 C 84 142, 26 98, 26 59 C 26 27, 52 11, 78 11 C 108 11, 140 33, 160 63 C 180 33, 212 11, 242 11 C 268 11, 294 27, 294 59 C 294 98, 236 142, 160 190 Z" />
+            </svg>
+          </div>
+          <p class="intro-tag">uma pequena história de amor em dois corações</p>
+        </div>
+      </div>
+      <button id="skip-intro" class="skip-btn">PULAR ›</button>
+    </section>
+
+    <!-- ===================== MENU ===================== -->
+    <section id="menu" class="screen hidden">
+      <div class="menu-shade"></div>
+      <div class="menu-content">
+        <div class="logo-wrap">
+          <div class="logo-hearts" aria-hidden="true"><span>♥</span><span>♥</span><span>♥</span></div>
+          <h1 class="logo">LOVE DUO</h1>
+          <p class="tagline">um pequeno conto cooperativo</p>
+        </div>
+
+        <div class="menu-buttons">
+          <button class="pixel-btn primary" id="btn-play">JOGAR</button>
+          <div class="menu-buttons-row">
+            <button class="pixel-btn" id="btn-trophies">TROFÉUS</button>
+            <button class="pixel-btn" id="btn-ranking">RANKING</button>
+          </div>
+          <button class="pixel-btn" id="btn-howto">COMO JOGAR</button>
+          <button class="pixel-btn" id="btn-credits">CRÉDITOS</button>
+        </div>
+
+        <div class="volume-row">
+          <button class="icon-btn mute-btn" data-mute title="Ligar/desligar som" aria-label="Alternar som">♪</button>
+          <label for="volume-menu">SOM</label>
+          <input type="range" id="volume-menu" class="volume-slider" min="0" max="100" value="70" aria-label="Volume do som" />
+          <span class="volume-val" data-vol-label>70</span>
+        </div>
+
+        <div class="menu-footer">
+          <p class="credit-line">DEVELOPED BY THE KING</p>
+          <p class="tiny">2 JOGADORES · TECLADO OU TOQUE</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== COMO JOGAR ===================== -->
+    <section id="howto" class="screen modal hidden">
+      <div class="modal-card">
+        <h2>COMO JOGAR</h2>
+        <div class="controls-grid">
+          <div class="ctrl-card p1-card">
+            <h3>PLAYER 1</h3>
+            <p class="key-row"><span class="key">W</span><span class="key">A</span><span class="key">S</span><span class="key">D</span> mover</p>
+            <p class="key-row"><span class="key wide">E</span> interagir</p>
+          </div>
+          <div class="ctrl-card p2-card">
+            <h3>PLAYER 2</h3>
+            <p class="key-row"><span class="key">↑</span><span class="key">←</span><span class="key">↓</span><span class="key">→</span> mover</p>
+            <p class="key-row"><span class="key wide">↵</span> interagir</p>
+          </div>
+        </div>
+        <div class="mech-list">
+          <p><b>1. CORAÇÕES</b> — encontrem e coletem todos os corações luminosos da fase com E / Enter.</p>
+          <p><b>2. ALAVANCA</b> — um jogador segura a alavanca para manter a passagem aberta enquanto o outro atravessa.</p>
+          <p><b>3. PLACAS E ALAVANCAS DUPLAS</b> — os dois precisam ativar os mecanismos ao mesmo tempo para abrir passagens permanentes.</p>
+          <p><b>4. PORTAL</b> — com todos os corações, os dois precisam ficar juntos dentro do portal.</p>
+          <p><b>5. QUATRO FASES</b> — cada fase tem seu próprio cenário, desafios e corações. Ao concluir, continuem a aventura.</p>
+        </div>
+        <p class="small">Os dois personagens se movem ao mesmo tempo. No PC, compartilhem o teclado; no celular, cada um usa seu próprio controle de toque.</p>
+        <p class="small touch-help"><b>NO CELULAR</b> — cada jogador tem seu próprio direcional e botão de ação nos cantos da tela. Os dois podem tocar ao mesmo tempo.</p>
+        <button class="pixel-btn" data-close="howto">VOLTAR</button>
+      </div>
+    </section>
+
+    <!-- ===================== CRÉDITOS ===================== -->
+    <section id="credits" class="screen modal hidden">
+      <div class="modal-card">
+        <h2>CRÉDITOS</h2>
+        <p class="dev-credit">DEVELOPED BY<br /><strong>THE KING</strong></p>
+        <p class="small">
+          LOVE DUO é uma pequena experiência cooperativa de navegador.<br />
+          Código, pixel art e trilha sonora criados proceduralmente — sem imagens ou áudios externos.
+        </p>
+        <p class="tiny">HTML · CSS · JAVASCRIPT PURO · WEB AUDIO</p>
+        <button class="pixel-btn" data-close="credits">VOLTAR</button>
+      </div>
+    </section>
+
+    <!-- ===================== TROFÉUS ===================== -->
+    <section id="trophies" class="screen modal hidden">
+      <div class="modal-card trophies-card">
+        <h2>TROFÉUS</h2>
+        <p class="small" id="trophy-summary">0 / 0 desbloqueados · 0 pontos</p>
+        <div class="trophy-grid" id="trophy-grid"></div>
+        <button class="pixel-btn" data-close="trophies">VOLTAR</button>
+      </div>
+    </section>
+
+    <!-- ===================== RANKING ===================== -->
+    <section id="ranking" class="screen modal hidden">
+      <div class="modal-card ranking-card">
+        <h2>RANKING LOCAL</h2>
+        <div class="ranking-name-row">
+          <label for="profile-name">DUPLA</label>
+          <input id="profile-name" class="profile-input" maxlength="12" autocomplete="off" spellcheck="false" aria-label="Nome da dupla" />
+          <button class="pixel-btn small-btn" id="btn-save-name">SALVAR</button>
+        </div>
+        <div class="ranking-list" id="ranking-list"></div>
+        <div class="ranking-actions">
+          <button class="pixel-btn small-btn" id="btn-new-profile">NOVA DUPLA</button>
+        </div>
+        <p class="small" id="ranking-note">Ranking salvo neste aparelho.</p>
+        <button class="pixel-btn" data-close="ranking">VOLTAR</button>
+      </div>
+    </section>
+
+    <!-- ===================== PAUSA ===================== -->
+    <section id="pause" class="screen modal hidden">
+      <div class="modal-card">
+        <h2>PAUSADO</h2>
+        <button class="pixel-btn primary" id="btn-resume">CONTINUAR</button>
+        <button class="pixel-btn" id="btn-restart">REINICIAR</button>
+        <button class="pixel-btn" id="btn-menu">MENU</button>
+        <div class="volume-row">
+          <button class="icon-btn mute-btn" data-mute title="Ligar/desligar som" aria-label="Alternar som">♪</button>
+          <label for="volume-pause">SOM</label>
+          <input type="range" id="volume-pause" class="volume-slider" min="0" max="100" value="70" aria-label="Volume do som" />
+          <span class="volume-val" data-vol-label>70</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== FASE CONCLUÍDA ===================== -->
+    <section id="level-complete" class="screen hidden">
+      <div class="phase-card" id="level-complete-card">
+        <p class="phase-kicker">FASE <span id="lc-num">1</span> CONCLUÍDA</p>
+        <h2 id="lc-name">FLORESTA ENCANTADA</h2>
+        <p class="phase-flavor" id="lc-flavor">A floresta floresceu com vocês.</p>
+        <p class="phase-hearts">Corações desta fase: <b id="lc-hearts">6 / 6</b></p>
+        <p class="phase-hearts">Tempo: <b id="lc-time">00:00</b> · Recorde: <b id="lc-record">—</b></p>
+        <p class="phase-hearts" id="lc-trophies">Nenhum troféu novo desta vez</p>
+        <div class="phase-next">
+          <span>PRÓXIMA FASE</span>
+          <b id="lc-next-num">2</b>
+          <strong id="lc-next-name">JARDIM DAS ESTRELAS</strong>
+        </div>
+        <button class="pixel-btn primary" id="btn-continue">CONTINUAR</button>
+        <button class="pixel-btn" id="btn-level-menu">MENU PRINCIPAL</button>
+      </div>
+    </section>
+
+    <!-- ===================== FINAL ===================== -->
+    <section id="complete" class="screen hidden">
+      <div id="credit-stars" class="credit-stars" aria-hidden="true"></div>
+      <div id="complete-hearts" class="complete-hearts" aria-hidden="true"></div>
+      <div class="complete-card credits-card">
+        <p class="credits-kicker">UMA AVENTURA COOPERATIVA</p>
+        <h2 class="credits-title">LOVE DUO</h2>
+        <div class="credits-king">
+          <span class="king-heart" aria-hidden="true">♥</span>
+          <span class="king-name">THE KING</span>
+        </div>
+        <ul class="credits-list">
+          <li><span>Designer</span><b>The King</b></li>
+          <li><span>Desenvolvedor</span><b>The King</b></li>
+          <li><span>Direção criativa</span><b>The King</b></li>
+          <li><span>Game Design</span><b>The King</b></li>
+          <li><span>Arte e identidade visual</span><b>The King</b></li>
+          <li><span>Agradecimentos</span><b>Todos que jogaram LOVE DUO.</b></li>
+        </ul>
+        <p class="final-quote">“Dois corações, uma aventura, infinitas memórias.”</p>
+        <p class="phase-hearts">Pontuação: <b id="final-score">0</b> · Troféus: <b id="final-trophies">0 / 0</b> · Tempo total: <b id="final-time">00:00</b></p>
+        <div class="complete-buttons">
+          <button class="pixel-btn primary" id="btn-again">JOGAR NOVAMENTE</button>
+          <button class="pixel-btn" id="btn-complete-menu">MENU PRINCIPAL</button>
+        </div>
+        <p class="credit-line">DEVELOPED BY THE KING</p>
+      </div>
+    </section>
+
+    <section id="demo-end" class="screen modal hidden">
+      <div class="modal-card demo-card">
+        <p class="credits-kicker">OBRIGADO POR JOGAR</p>
+        <h2>FIM DA DEMO</h2>
+        <p>Vocês concluíram a primeira fase de LOVE DUO.</p>
+        <p class="small">A versão completa tem quatro fases, troféus, ranking local e instalação como app.</p>
+        <button class="pixel-btn primary" id="btn-demo-menu">VOLTAR AO MENU</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===================== CONTROLES DE TOQUE ===================== -->
+  <div id="touch-controls" class="touch-controls hidden" aria-hidden="true">
+    <div class="touch-cluster touch-cluster-p1">
+      <button type="button" class="touch-action touch-action-p1" id="act-p1" data-player="1" aria-label="Player 1: interagir">E</button>
+      <div class="touch-stick touch-stick-p1" id="stick-p1" data-player="1" aria-label="Player 1: direcional">
+        <span class="stick-ring" aria-hidden="true"></span>
+        <span class="stick-label" aria-hidden="true">P1</span>
+        <span class="stick-knob" aria-hidden="true"></span>
+      </div>
+    </div>
+    <div class="touch-cluster touch-cluster-p2">
+      <button type="button" class="touch-action touch-action-p2" id="act-p2" data-player="2" aria-label="Player 2: interagir">↵</button>
+      <div class="touch-stick touch-stick-p2" id="stick-p2" data-player="2" aria-label="Player 2: direcional">
+        <span class="stick-ring" aria-hidden="true"></span>
+        <span class="stick-label" aria-hidden="true">P2</span>
+        <span class="stick-knob" aria-hidden="true"></span>
+      </div>
+    </div>
+  </div>
+
+  <div id="trophy-toasts" class="trophy-toasts" aria-live="polite"></div>
+
+  <script src="game.min.js?v=a2851d15"></script>
+</body>
+</html>
